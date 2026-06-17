@@ -1,14 +1,23 @@
+import json
 import board
 from adafruit_pca9685 import PCA9685
+from pathlib import Path
+from types import SimpleNamespace
 
 from control import LinienFolger, LinienRegler
-from konfiguration import LinienfolgerKonfiguration
 from motors import MotorSteuerung
 from sensors import LinienSensoren
 
 
+def lade_konfiguration():
+    pfad = Path(__file__).with_name("config.json")
+    with pfad.open(encoding="utf-8") as datei:
+        daten = json.load(datei)
+    return SimpleNamespace(**daten)
+
+
 def starten():
-    konfiguration = LinienfolgerKonfiguration()
+    konfiguration = lade_konfiguration()
     pwm_modul = PCA9685(board.I2C())
     motor_steuerung = MotorSteuerung(pwm_modul)
     linien_sensoren = LinienSensoren(konfiguration.schwarz_wert)
